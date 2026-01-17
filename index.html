@@ -9,6 +9,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+        .product-card:hover .btn-beli { background-color: #4f46e5; }
+        /* Smooth image loading */
+        img { transition: opacity 0.3s ease-in-out; }
     </style>
 </head>
 <body>
@@ -16,7 +19,7 @@
     <nav class="bg-white sticky top-0 z-50 shadow-sm border-b border-slate-200">
         <div class="container mx-auto px-4 py-4 flex justify-between items-center">
             <div class="text-xl font-extrabold text-indigo-700 tracking-tight">HUB.KANGRULI</div>
-            <div class="text-xs font-medium text-slate-500">Stok Ready</div>
+            <div class="text-xs font-medium text-slate-500 bg-slate-100 px-3 py-1 rounded-full">Stok Ready</div>
         </div>
     </nav>
 
@@ -28,7 +31,7 @@
 
         <div class="max-w-md mx-auto mb-10">
             <div class="relative">
-                <input type="text" id="searchInput" placeholder="Cari nama barang..." class="w-full pl-10 pr-4 py-3 rounded-full border border-slate-300 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 shadow-sm transition-all text-sm">
+                <input type="text" id="searchInput" placeholder="Cari nama barang..." class="w-full pl-10 pr-4 py-3 rounded-full border border-slate-300 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 shadow-sm transition-all text-sm">
                 <svg class="w-5 h-5 text-slate-400 absolute left-3.5 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
             </div>
         </div>
@@ -37,12 +40,15 @@
             </div>
         
         <div id="not-found" class="hidden text-center py-10">
-            <p class="text-slate-500">Produk tidak ditemukan.</p>
+            <div class="inline-block p-4 rounded-full bg-slate-100 mb-3">
+                <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <p class="text-slate-500 font-medium">Produk tidak ditemukan.</p>
         </div>
     </main>
 
     <script>
-        // --- DATA PRODUK MANUAL (SUDAH DIMASUKKAN) ---
+        // --- DATA PRODUK ---
         const csvData = `ID Produk,Nama Produk,Harga,Penjualan,Nama Toko,Komisi hingga,Komisi,Link Produk,Link Komisi Ekstra
 56304178961,SILICON ( BELI 2 GRATIS 1 ) Bantal Guling SILICON by TOKYOFOAM 100% Silicon Microfiber,"129,0RB",464,Tokyo Foam Official Shop,"1,5%",Rp1.290,https://shopee.co.id/product/402046349/56304178961,https://s.shopee.co.id/9zrWfP99td
 50501497216,MUKENA ORI JAGUAR EXCLUSIVE RENDA,"209,0RB",1RB+,Hirembulan.office,"1,5%",Rp2.090,https://shopee.co.id/product/7016194/50501497216,https://s.shopee.co.id/AUnnGK7Fsk
@@ -98,8 +104,8 @@
 28102019498,10 tahun Kartrid semprotan cat Krom Tanpa Karat Dengan Semprotan Roda Baja Berlapis Krom Warna Mobil,"39,8RB",10RB+,iq55g01n6o,12%,Rp4.776,https://shopee.co.id/product/1072726018/28102019498,https://s.shopee.co.id/BNaxKkarY
 22020385919,Kasur lipat Vassa / Travel bed / kain knitted premium,"319,0RB",1RB+,Vassa Sofa & Home,"8,5%",Rp25.520,https://shopee.co.id/product/120929209/22020385919,https://s.shopee.co.id/14Al1lECX
 25185087938,Cetakan Puding Mini 10pcs Loyang Pudding Agar Agar Jelly Plastik,"11,9RB",10RB+,Bakeware89,"8,5%",Rp951,https://shopee.co.id/product/112588406/25185087938,https://s.shopee.co.id/W0RLwjKBe
-28562865265,ZPER Satu Set Alat Perkakas Bor Listrik Cordless Tang Obeng Palu Kunci Pas Toolkit 124 in1 pcs ZP027,"98,0RB",947,ZPER TOOLS,"8,5%",Rp7.840,https://shopee.co.id/product/1285967239/28562865265,https://s.shopee.co.id/Lh19djxWd
-29804216164,Trending No. 1 PAKET CUCI KENDARAAN LENGKAP | By Quick NClean,"33,2RB",10RB+,QUICK NCLEAN Official,"11,5%",Rp3.655,https://shopee.co.id/product/1060613196/29804216164,https://s.shopee.co.id/qdHkYi3Vk
+28562865265,ZPER Satu Set Alat Perkakas Bor Listrik Cordless Tang Obeng Palu Kunci Pas Toolkit 124 in1 pcs ZP027,"98,0RB",947,ZPER TOOLS,"8,5%",Rp7.840,https://shopee.co.id/product/1285967239/28562865265,https://s.shopee.co.id/Lh19djxWd
+29804216164,Trending No. 1 PAKET CUCI KENDARAAN LENGKAP | By Quick NClean,"33,2RB",10RB+,QUICK NCLEAN Official,"11,5%",Rp3.655,https://shopee.co.id/product/1060613196/29804216164,https://s.shopee.co.id/qdHkYi3Vk
 25821183115,Kasur 1 Set Kasur Angin / Air Bed Double Kasur Angin Bestway + pompa manual Bestway Paket Kasur Angin Double Biru/ Paket Kasur Tiup Air Bed Double,"52,0RB",10RB+,Outdoor Toko,"8,5%",Rp4.160,https://shopee.co.id/product/954867319/25821183115,https://s.shopee.co.id/gJrYFigqj
 29805968546,TV Smart 32 inch Smart TV 43 inch TV Android 50 inch LED UHD 4K WIFI Youtube/Google Play Dolby Audio,"731,4RB",7RB+,EXPOSE Digital Store,"7,5%",Rp51.198,https://shopee.co.id/product/1223030402/29805968546,https://s.shopee.co.id/1BG89Agmpq
 56304178961,SILICON ( BELI 2 GRATIS 1 ) Bantal Guling SILICON by TOKYOFOAM 100% Silicon Microfiber,"129,0RB",464,Tokyo Foam Official Shop,"1,5%",Rp1.290,https://shopee.co.id/product/402046349/56304178961,https://s.shopee.co.id/5fiXV4Gw07
@@ -129,19 +135,15 @@
         const notFoundMsg = document.getElementById('not-found');
         let products = [];
 
-        // Fungsi Bersihkan Harga (Ubah 129,0RB jadi 129.000)
+        // Fungsi Bersihkan Harga
         const cleanPrice = (priceStr) => {
             if (!priceStr) return "0";
-            let clean = priceStr.replace(/['"]+/g, ''); // Hapus tanda kutip
-
-            // Jika format "129,0RB"
+            let clean = priceStr.replace(/['"]+/g, '');
             if (clean.toUpperCase().includes("RB")) {
                 clean = clean.replace(/RB/gi, '').replace(',', '.');
                 let number = parseFloat(clean) * 1000;
                 return new Intl.NumberFormat('id-ID').format(number);
             }
-            
-            // Jika format normal atau ada "Rp"
             return clean.replace('Rp', '').trim(); 
         };
 
@@ -159,35 +161,41 @@
             }
 
             dataList.forEach(item => {
-                // Gunakan Link Ekstra jika ada, kalau tidak pakai Link Produk
+                // LOGIKA LINK: Utamakan Link Komisi Ekstra
                 let finalLink = item['Link Komisi Ekstra'];
-                if (!finalLink || finalLink.trim() === '') {
+                if (!finalLink || finalLink.trim() === '' || finalLink === 'undefined') {
                     finalLink = item['Link Produk'];
                 }
 
-                // Generate Gambar Random (tapi konsisten per ID)
-                const imgId = item['ID Produk'] || Math.random();
-                const imgSrc = `https://picsum.photos/seed/${imgId}/300/300`;
+                // LOGIKA GAMBAR BARU: Perempuan cantik menawarkan produk
+                const productId = item['ID Produk'] || Math.random();
+                // Prompt URL-encoded: "beautiful asian woman sales promotion smiling pointing presenting product commercial photography photorealistic"
+                const prompt = "beautiful asian woman sales promotion smiling pointing presenting product commercial photography photorealistic";
+                const imgSrc = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=400&height=400&nologo=true&seed=${productId}`;
 
                 const cardHTML = `
-                    <div class="bg-white rounded-xl overflow-hidden border border-slate-100 shadow hover:shadow-lg transition-all duration-300 flex flex-col h-full group">
-                        <div class="relative overflow-hidden aspect-square">
-                            <img src="${imgSrc}" alt="${item['Nama Produk']}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3">
-                                <p class="text-white text-[10px] font-bold uppercase tracking-wider">
+                    <div class="product-card bg-white rounded-xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full group">
+                        <div class="relative overflow-hidden aspect-square bg-slate-200">
+                            <img src="${imgSrc}" alt="${item['Nama Produk']}" loading="lazy" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3 pt-8">
+                                <p class="text-white text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+                                    <svg class="w-3 h-3 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
                                     ${item['Penjualan']} Terjual
                                 </p>
                             </div>
                         </div>
-                        <div class="p-3 flex flex-col flex-grow">
-                            <h3 class="text-xs font-bold text-slate-800 mb-1 line-clamp-2 leading-relaxed h-8" title="${item['Nama Produk']}">
+                        <div class="p-4 flex flex-col flex-grow">
+                            <h3 class="text-xs font-bold text-slate-800 mb-2 line-clamp-2 leading-relaxed h-9" title="${item['Nama Produk']}">
                                 ${item['Nama Produk']}
                             </h3>
-                            <div class="mt-auto pt-2">
-                                <div class="text-indigo-600 font-extrabold text-base mb-3">
-                                    Rp ${cleanPrice(item['Harga'])}
+                            <div class="mt-auto pt-2 border-t border-dashed border-slate-100">
+                                <div class="flex justify-between items-center mb-3">
+                                    <span class="text-[10px] text-slate-400 font-medium">Harga Promo</span>
+                                    <div class="text-indigo-600 font-extrabold text-base">
+                                        Rp${cleanPrice(item['Harga'])}
+                                    </div>
                                 </div>
-                                <a href="${finalLink}" target="_blank" class="block w-full text-center bg-slate-900 hover:bg-indigo-600 text-white py-2.5 rounded-lg text-xs font-bold transition-colors">
+                                <a href="${finalLink}" target="_blank" class="btn-beli block w-full text-center bg-slate-900 text-white py-2.5 rounded-lg text-xs font-bold transition-all transform active:scale-95 shadow-lg shadow-indigo-200">
                                     BELI SEKARANG
                                 </a>
                             </div>
