@@ -9,8 +9,10 @@
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
         .product-card { transition: all 0.3s ease; }
-        .product-card:hover { transform: translateY(-5px); shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
-        /* Loading animation */
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        
+        /* Loading Animation */
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid #4f46e5; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
@@ -22,7 +24,7 @@
             <div class="text-2xl font-extrabold tracking-tighter text-indigo-700">HUB.KANGRULI</div>
             <div class="hidden md:flex gap-8 text-sm font-bold text-slate-500 uppercase tracking-widest">
                 <a href="#" class="hover:text-indigo-600">Katalog</a>
-                <a href="#" class="hover:text-indigo-600">Promo Harian</a>
+                <a href="#" class="hover:text-indigo-600">Best Seller</a>
             </div>
         </div>
     </nav>
@@ -30,17 +32,18 @@
     <header class="py-12 px-6">
         <div class="container mx-auto text-center">
             <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4">Rekomendasi Produk Pilihan</h1>
-            <p class="text-slate-500 max-w-2xl mx-auto italic">"Hasil kurasi dari sumber terpercaya, disesuaikan untuk kebutuhan Anda."</p>
+            <p class="text-slate-500 max-w-2xl mx-auto italic">"Pilihan terbaik dengan harga termurah dan kualitas terjamin."</p>
         </div>
     </header>
 
     <main class="container mx-auto px-6 pb-24">
         <div id="loading" class="text-center py-10">
             <div class="loader"></div>
-            <p class="text-slate-500 text-sm">Memuat data terbaru...</p>
+            <p class="text-slate-500 text-sm mt-4">Sedang mengambil data terbaru...</p>
         </div>
+
         <div id="product-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 hidden">
-        </div>
+            </div>
     </main>
 
     <footer class="bg-white border-t border-slate-200 py-10 text-center">
@@ -48,32 +51,37 @@
     </footer>
 
     <script>
-        const MY_AFF_ID = "11368310025";
-        const SHEET_ID = "1xo-dKGA6Uxn78wUqGv-UbQLoHIWMb0SebTNC6bSEoUc"; // ID dari link yang Anda berikan
+        // Ganti ID Spreadsheet di sini jika berubah
+        const SHEET_ID = "1xo-dKGA6Uxn78wUqGv-UbQLoHIWMb0SebTNC6bSEoUc";
         const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
 
         const container = document.getElementById('product-container');
         const loading = document.getElementById('loading');
 
-        // Fungsi parse CSV sederhana (mengasumsikan pemisah koma)
+        // Fungsi parsing CSV yang lebih canggih untuk menangani tanda kutip "129,0RB"
         function parseCSV(text) {
-            const rows = text.trim().split('\n');
-            // Hapus header (baris pertama) jika ada, asumsi baris 1 adalah judul kolom
-            const dataRows = rows.slice(1); 
-            
-            return dataRows.map(row => {
-                // Regex ini menangani koma di dalam tanda kutip jika ada (misal nama produk mengandung koma)
-                const cols = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
-                // Fallback split biasa jika regex gagal atau format sederhana
-                const simpleCols = row.split(',');
+            const lines = text.trim().split('\n');
+            // Hapus header (baris pertama)
+            const dataLines = lines.slice(1);
+
+            return dataLines.map(line => {
+                // Regex untuk memisahkan koma, tapi mengabaikan koma di dalam tanda kutip
+                const matches = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
                 
-                // Asumsi: Kolom 1 (index 0) = Nama Produk, Kolom 2 (index 1) = Link Produk
-                // Kita bersihkan tanda kutip jika ada
-                const name = (cols[0] || simpleCols[0] || "").replace(/^"|"$/g, '').trim();
-                const link = (cols[1] || simpleCols[1] || "").replace(/^"|"$/g, '').trim();
-                
-                return { name, link };
-            }).filter(item => item.name && item.link); // Hanya ambil yang ada nama & linknya
+                if (!matches) return null;
+
+                // Membersihkan tanda kutip dari hasil regex
+                const cols = matches.map(col => col.replace(/^"|"$/g, '').trim());
+
+                // MAPPING DATA SESUAI FORMAT BARU ANDA:
+                // Col 0: ID, Col 1: Nama, Col 2: Harga, Col 8: Link Komisi Ekstra
+                return {
+                    name: cols[1] || "Produk Tanpa Nama",
+                    price: cols[2] || "Cek Harga",
+                    link: cols[8] || cols[7] || "#", // Prioritas Link Komisi Ekstra, fallback ke Link Produk
+                    sales: cols[3] || ""
+                };
+            }).filter(item => item && item.link !== "#"); 
         }
 
         async function loadProducts() {
@@ -82,58 +90,61 @@
                 if (!response.ok) throw new Error("Gagal mengambil data");
                 
                 const csvText = await response.text();
-                const productData = parseCSV(csvText);
+                const products = parseCSV(csvText);
 
-                if (productData.length === 0) {
+                if (products.length === 0) {
                     loading.innerHTML = "<p class='text-red-500'>Tidak ada data produk ditemukan.</p>";
                     return;
                 }
 
-                // Render produk
-                productData.forEach((p, index) => {
-                    // Logika Link Affiliate
-                    // Cek apakah link sudah mengandung ? atau belum
-                    const separator = p.link.includes('?') ? '&' : '?';
-                    const affiliateLink = `${p.link}${separator}smtt=0.0.${MY_AFF_ID}`;
-                    
-                    // Placeholder Image
-                    const imgSrc = `https://picsum.photos/seed/${index + 55}/400/400`;
+                // Render HTML
+                products.forEach((p, index) => {
+                    // Placeholder Image (Karena di CSV tidak ada kolom gambar)
+                    // Saya menggunakan keyword 'product' agar randomnya relevan
+                    const imgSrc = `https://picsum.photos/seed/${index + 123}/400/400`;
 
                     container.innerHTML += `
-                        <div class="product-card bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
-                            <div class="aspect-square bg-slate-100 relative">
-                                <img src="${imgSrc}" alt="${p.name}" class="w-full h-full object-cover">
-                                <div class="absolute top-2 right-2 bg-white/90 px-2 py-1 rounded-md text-[10px] font-bold text-indigo-600 shadow-sm">
-                                    HOT
+                        <div class="product-card bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm flex flex-col h-full">
+                            <div class="aspect-square bg-slate-100 relative overflow-hidden group">
+                                <img src="${imgSrc}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                                
+                                <div class="absolute top-2 right-2 bg-indigo-600/90 backdrop-blur text-white px-2 py-1 rounded-md text-[10px] font-bold shadow-sm">
+                                    ${p.sales ? 'Terjual ' + p.sales : 'BEST SELLER'}
                                 </div>
                             </div>
-                            <div class="p-4">
-                                <h3 class="text-sm font-bold text-slate-800 mb-4 line-clamp-2 h-10">${p.name}</h3>
-                                <a href="${affiliateLink}" target="_blank" rel="nofollow" 
-                                   class="block w-full text-center bg-indigo-600 text-white py-2.5 rounded-xl text-xs font-bold hover:bg-slate-900 transition-colors">
-                                    Lihat Detail
+                            <div class="p-4 flex flex-col flex-grow justify-between">
+                                <div>
+                                    <h3 class="text-sm font-bold text-slate-800 mb-2 line-clamp-2 leading-snug" title="${p.name}">
+                                        ${p.name}
+                                    </h3>
+                                    <div class="text-indigo-600 font-extrabold text-lg mb-4">
+                                        Rp ${p.price}
+                                    </div>
+                                </div>
+                                <a href="${p.link}" target="_blank" rel="nofollow" 
+                                   class="block w-full text-center bg-slate-900 text-white py-3 rounded-xl text-xs font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200">
+                                    BELI SEKARANG
                                 </a>
                             </div>
                         </div>
                     `;
                 });
 
-                // Sembunyikan loading, tampilkan container
                 loading.style.display = 'none';
                 container.classList.remove('hidden');
 
             } catch (error) {
                 console.error(error);
                 loading.innerHTML = `
-                    <p class='text-red-500 text-sm'>Gagal memuat data.</p>
-                    <p class='text-xs text-slate-400 mt-2'>Pastikan Google Sheet sudah di-"Publish to Web" (File > Share > Publish to Web).</p>
+                    <div class="text-red-500 bg-red-50 p-4 rounded-xl inline-block">
+                        <p class="font-bold">Gagal memuat data!</p>
+                        <p class="text-xs mt-1">Pastikan Google Sheet sudah di-"Publish to Web" sebagai CSV.</p>
+                    </div>
                 `;
             }
         }
 
-        // Jalankan fungsi saat halaman dimuat
         loadProducts();
-
     </script>
 </body>
 </html>
