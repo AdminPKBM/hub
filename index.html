@@ -59,95 +59,111 @@
     </footer>
 
     <script>
-        // LINK TERBARU ANDA (Published to Web)
-        const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS7mfrdLCUYC1dsGJ5F_ixbZiZ7eA28nCn-MMvPGkAfcmGi20pW2ltTP4O2lkDAR0KoJjxczeT3UEAz/pub?output=csv";
+    // GANTI URL INI DENGAN URL CSV ANDA YANG BENAR
+    const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS7mfrdLCUYC1dsGJ5F_ixbZiZ7eA28nCn-MMvPGkAfcmGi20pW2ltTP4O2lkDAR0KoJjxczeT3UEAz/pub?output=csv";
 
-        const container = document.getElementById('product-container');
-        const loading = document.getElementById('loading');
-        const errorMsg = document.getElementById('error-msg');
+    const container = document.getElementById('product-container');
+    const loading = document.getElementById('loading');
+    const errorMsg = document.getElementById('error-msg');
 
-        function loadProducts() {
-            Papa.parse(SHEET_URL, {
-                download: true,
-                header: true, // Membaca baris pertama sebagai Judul Kolom
-                complete: function(results) {
-                    const data = results.data;
+    // Fungsi Format Rupiah
+    const formatRupiah = (angka) => {
+        return new Intl.NumberFormat('id-ID').format(angka);
+    };
+
+    function loadProducts() {
+        Papa.parse(SHEET_URL, {
+            download: true,
+            header: true,
+            skipEmptyLines: true, // Tambahan: melewati baris kosong
+            complete: function(results) {
+                const data = results.data;
+                
+                // DEBUG: Lihat data pertama di Console Browser (Klik Kanan -> Inspect -> Console)
+                console.log("Data Baris Pertama:", data[0]); 
+
+                if (!data || data.length === 0) {
+                    showError();
+                    return;
+                }
+
+                let hasProduct = false;
+
+                data.forEach((row, index) => {
+                    // Ambil data
+                    const nama = row['Nama Produk'];
+                    const hargaRaw = row['Harga'];
+                    const penjualan = row['Penjualan'];
+                    // Tambahan: Kolom gambar (buat kolom 'Gambar URL' di sheet Anda)
+                    const gambarUrl = row['Gambar URL']; 
                     
-                    if (!data || data.length === 0) {
-                        showError();
-                        return;
+                    // Logika Link
+                    let link = row['Link Komisi Ekstra'];
+                    if (!link || link.trim() === "") {
+                        link = row['Link Produk'];
                     }
 
-                    let hasProduct = false;
+                    // Validasi Data Utama
+                    if (!nama || !link) return;
 
-                    data.forEach((row, index) => {
-                        // MENGAMBIL DATA SESUAI JUDUL KOLOM DI EXCEL/SHEET
-                        const nama = row['Nama Produk'];
-                        const harga = row['Harga'];
-                        const penjualan = row['Penjualan'];
-                        
-                        // Logika Link: Pakai Link Komisi Ekstra, kalau kosong pakai Link Produk biasa
-                        let link = row['Link Komisi Ekstra'];
-                        if (!link || link.trim() === "") {
-                            link = row['Link Produk'];
-                        }
+                    hasProduct = true;
+                    
+                    // Logika Gambar: Jika ada link gambar di sheet pakai itu, jika tidak pakai random
+                    const imgSrc = (gambarUrl && gambarUrl.trim() !== "") 
+                        ? gambarUrl 
+                        : `https://picsum.photos/seed/${index + 55}/400/400`;
 
-                        // Jika nama produk atau link kosong, lewati baris ini
-                        if (!nama || !link) return;
+                    // Format Harga
+                    const hargaFormatted = formatRupiah(hargaRaw);
 
-                        hasProduct = true;
-                        
-                        // Gambar Placeholder (Karena di sheet belum ada kolom URL Gambar)
-                        // Menggunakan ID unik agar gambar berbeda-beda tiap produk
-                        const imgSrc = `https://picsum.photos/seed/${index + 99}/400/400`;
-
-                        container.innerHTML += `
-                            <div class="product-card bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm flex flex-col h-full">
-                                <div class="aspect-square bg-slate-100 relative overflow-hidden group">
-                                    <img src="${imgSrc}" alt="${nama}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                                    <div class="absolute top-2 right-2 bg-indigo-600/90 backdrop-blur text-white px-2 py-1 rounded-md text-[10px] font-bold shadow-sm">
-                                        ${penjualan ? penjualan + ' Terjual' : 'BEST SELLER'}
-                                    </div>
-                                </div>
-                                <div class="p-4 flex flex-col flex-grow justify-between">
-                                    <div>
-                                        <h3 class="text-sm font-bold text-slate-800 mb-2 line-clamp-2 leading-snug" title="${nama}">
-                                            ${nama}
-                                        </h3>
-                                        <div class="text-indigo-600 font-extrabold text-lg mb-4">
-                                            Rp ${harga}
-                                        </div>
-                                    </div>
-                                    <a href="${link}" target="_blank" rel="nofollow" 
-                                       class="block w-full text-center bg-slate-900 text-white py-3 rounded-xl text-xs font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200">
-                                        BELI SEKARANG
-                                    </a>
+                    container.innerHTML += `
+                        <div class="product-card bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm flex flex-col h-full">
+                            <div class="aspect-square bg-slate-100 relative overflow-hidden group">
+                                <img src="${imgSrc}" alt="${nama}" loading="lazy" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                                <div class="absolute top-2 right-2 bg-indigo-600/90 backdrop-blur text-white px-2 py-1 rounded-md text-[10px] font-bold shadow-sm">
+                                    ${penjualan ? penjualan + ' Terjual' : 'REKOMENDASI'}
                                 </div>
                             </div>
-                        `;
-                    });
+                            <div class="p-4 flex flex-col flex-grow justify-between">
+                                <div>
+                                    <h3 class="text-sm font-bold text-slate-800 mb-2 line-clamp-2 leading-snug" title="${nama}">
+                                        ${nama}
+                                    </h3>
+                                    <div class="text-indigo-600 font-extrabold text-lg mb-4">
+                                        Rp ${hargaFormatted}
+                                    </div>
+                                </div>
+                                <a href="${link}" target="_blank" rel="nofollow" 
+                                   class="block w-full text-center bg-slate-900 text-white py-3 rounded-xl text-xs font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200">
+                                    BELI SEKARANG
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                });
 
-                    if (hasProduct) {
-                        loading.style.display = 'none';
-                        container.classList.remove('hidden');
-                    } else {
-                        console.error("Data terbaca tapi kolom mungkin salah nama");
-                        showError();
-                    }
-                },
-                error: function(err) {
-                    console.error("Error mengambil data:", err);
+                if (hasProduct) {
+                    loading.style.display = 'none';
+                    container.classList.remove('hidden');
+                } else {
+                    console.error("Kolom tidak ditemukan. Cek Console untuk nama kolom yang terbaca.");
                     showError();
                 }
-            });
-        }
+            },
+            error: function(err) {
+                console.error("Error CSV:", err);
+                showError();
+            }
+        });
+    }
 
-        function showError() {
-            loading.style.display = 'none';
-            errorMsg.classList.remove('hidden');
-        }
+    function showError() {
+        loading.style.display = 'none';
+        errorMsg.classList.remove('hidden');
+    }
 
-        loadProducts();
-    </script>
+    loadProducts();
+</script>
+    
 </body>
 </html>
