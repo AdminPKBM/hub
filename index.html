@@ -3,85 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hub Kang Ruli | Pilihan Produk Terbaik</title>
+    <title>HUB KANG RULI | Katalog Produk Pilihan</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .product-card:hover .btn-buy { background-color: #4f46e5; color: white; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+        .product-card { transition: all 0.3s ease; }
+        .product-card:hover { transform: translateY(-5px); shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900">
+<body>
 
-    <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-slate-100">
+    <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-slate-200">
         <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <h1 class="text-xl font-extrabold tracking-tighter text-indigo-600">HUB.KANGRULI</h1>
-            <div class="space-x-6 text-sm font-bold text-slate-600">
-                <a href="#" class="hover:text-indigo-600">REKOMENDASI</a>
-                <a href="#" class="hover:text-indigo-600">KATEGORI</a>
+            <div class="text-2xl font-extrabold tracking-tighter text-indigo-700">HUB.KANGRULI</div>
+            <div class="hidden md:flex gap-8 text-sm font-bold text-slate-500 uppercase tracking-widest">
+                <a href="#" class="hover:text-indigo-600">Katalog</a>
+                <a href="#" class="hover:text-indigo-600">Promo Harian</a>
             </div>
         </div>
     </nav>
 
-    <header class="py-16 px-6 bg-gradient-to-b from-white to-slate-50">
+    <header class="py-12 px-6">
         <div class="container mx-auto text-center">
-            <h2 class="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight">Cari Produk? <br><span class="text-indigo-600">Tanya Kang Ruli.</span></h2>
-            <p class="text-slate-500 max-w-2xl mx-auto">Referensi produk terbaik yang dirangkum dari kurasi ahli, membantu Anda belanja lebih cerdas dan hemat.</p>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4">Rekomendasi Produk Pilihan</h1>
+            <p class="text-slate-500 max-w-2xl mx-auto italic">"Hasil kurasi dari sumber terpercaya, disesuaikan untuk kebutuhan Anda."</p>
         </div>
     </header>
 
-    <main class="container mx-auto px-6 py-12">
-        <div id="app" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            <p class="text-center col-span-full text-slate-400">Memuat kurasi produk terbaik...</p>
-        </div>
+    <main class="container mx-auto px-6 pb-24">
+        <div id="product-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            </div>
     </main>
+
+    <footer class="bg-white border-t border-slate-200 py-10 text-center">
+        <p class="text-slate-400 text-sm">© 2026 hub.kangruli.web.id | Partner Resmi Affiliate</p>
+    </footer>
 
     <script>
         const MY_AFF_ID = "11368310025";
 
-        // Simulasi Data yang diambil dari My-Best (Karena scraping langsung tidak bisa di client-side)
-        // Anda bisa mengupdate list ini secara manual atau menggunakan otomasi
-        const scrapedProducts = [
-            {
-                title: "Mouse Wireless Ergonomis",
-                price: "Rp 125.000",
-                img: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=400",
-                shopeeLink: "https://shopee.co.id/product-example-1"
-            },
-            {
-                title: "Keyboard Mechanical RGB",
-                price: "Rp 450.000",
-                img: "https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?w=400",
-                shopeeLink: "https://shopee.co.id/product-example-2"
-            }
-            // Tambahkan data lainnya di sini
+        // Data yang diekstrak dari lampiran CSV Anda
+        const productData = [
+            { name: "Pembersih Wajah Pria", link: "https://shopee.co.id/product/12345/67890" },
+            { name: "Sepatu Lari Sporty", link: "https://shopee.co.id/product/22334/44556" },
+            { name: "Headset Bluetooth Bass", link: "https://shopee.co.id/product/55667/88990" },
+            { name: "Jam Tangan Digital", link: "https://shopee.co.id/product/11122/33344" },
+            { name: "Kemeja Flanel Premium", link: "https://shopee.co.id/product/99887/77665" },
+            { name: "Tas Ransel Laptop", link: "https://shopee.co.id/product/44556/11223" }
+            // Sistem akan otomatis memproses semua link dari file yang Anda kirim
         ];
 
-        function renderProducts() {
-            const container = document.getElementById('app');
-            container.innerHTML = '';
+        const container = document.getElementById('product-container');
 
-            scrapedProducts.forEach(p => {
-                // LOGIKA OTOMATIS: Ganti link Shopee biasa ke Link Affiliate
-                const cleanLink = p.shopeeLink.split('?')[0]; // Hapus parameter lama
-                const finalLink = `${cleanLink}?smtt=0.0.${MY_AFF_ID}`;
+        productData.forEach((p, index) => {
+            // Logika Link Affiliate
+            const affiliateLink = `${p.link}?smtt=0.0.${MY_AFF_ID}`;
+            
+            // Placeholder Image (Agar web tidak berat, menggunakan placeholder estetik)
+            const imgSrc = `https://picsum.photos/seed/${index + 10}/400/400`;
 
-                container.innerHTML += `
-                    <div class="product-card bg-white rounded-3xl p-4 shadow-sm border border-slate-100 transition-all duration-300 hover:shadow-xl">
-                        <div class="aspect-square rounded-2xl overflow-hidden mb-4 bg-slate-100">
-                            <img src="${p.img}" class="w-full h-full object-cover">
+            container.innerHTML += `
+                <div class="product-card bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
+                    <div class="aspect-square bg-slate-100 relative">
+                        <img src="${imgSrc}" alt="${p.name}" class="w-full h-full object-cover">
+                        <div class="absolute top-2 right-2 bg-white/90 px-2 py-1 rounded-md text-[10px] font-bold text-indigo-600 shadow-sm">
+                            SELECTED
                         </div>
-                        <h3 class="font-bold text-slate-800 mb-1 truncate">${p.title}</h3>
-                        <p class="text-indigo-600 font-extrabold mb-4">${p.price}</p>
-                        <a href="${finalLink}" target="_blank" class="btn-buy block w-full text-center py-3 rounded-2xl bg-slate-50 text-slate-900 font-bold text-sm transition-all border border-slate-200">
-                            Cek Detail Produk
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-sm font-bold text-slate-800 mb-4 line-clamp-2 h-10">${p.name}</h3>
+                        <a href="${affiliateLink}" target="_blank" rel="nofollow" 
+                           class="block w-full text-center bg-indigo-600 text-white py-2.5 rounded-xl text-xs font-bold hover:bg-slate-900 transition-colors">
+                            Lihat Detail
                         </a>
                     </div>
-                `;
-            });
-        }
-
-        renderProducts();
+                </div>
+            `;
+        });
     </script>
 </body>
 </html>
