@@ -3,167 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HUB KANG RULI | Katalog Produk Pilihan</title>
+    <title>HUB KANG RULI | Katalog Produk</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
-        .product-card { transition: all 0.3s ease; }
-        .product-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
-        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        
-        /* Loading Animation */
-        .loader { border: 4px solid #e2e8f0; border-top: 4px solid #4f46e5; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f1f5f9; }
+        .loader { border: 4px solid #cbd5e1; border-top: 4px solid #4f46e5; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-slate-200">
-        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <div class="text-2xl font-extrabold tracking-tighter text-indigo-700">HUB.KANGRULI</div>
-            <div class="hidden md:flex gap-8 text-sm font-bold text-slate-500 uppercase tracking-widest">
-                <a href="#" class="hover:text-indigo-600">Katalog</a>
-                <a href="#" class="hover:text-indigo-600">Promo Harian</a>
-            </div>
+    <nav class="bg-white sticky top-0 z-50 shadow-sm border-b border-slate-200">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="text-xl font-extrabold text-indigo-700 tracking-tight">HUB.KANGRULI</div>
         </div>
     </nav>
 
-    <header class="py-12 px-6">
-        <div class="container mx-auto text-center">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4">Rekomendasi Produk Pilihan</h1>
-            <p class="text-slate-500 max-w-2xl mx-auto italic">"Pilihan terbaik dengan harga termurah dan kualitas terjamin."</p>
+    <main class="container mx-auto px-4 py-8 pb-24">
+        <div class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-2">Rekomendasi Terbaik</h1>
+            <p class="text-slate-500 text-sm">Update Realtime dari Database</p>
         </div>
-    </header>
 
-    <main class="container mx-auto px-6 pb-24">
         <div id="loading" class="text-center py-10">
             <div class="loader"></div>
-            <p class="text-slate-500 text-sm mt-4">Memuat data dari Google Sheet...</p>
+            <p class="text-slate-500 text-sm mt-4">Sedang mengambil data terbaru...</p>
         </div>
 
         <div id="error-msg" class="hidden text-center py-10">
-            <div class="bg-red-50 text-red-600 p-4 rounded-xl inline-block border border-red-200">
-                <p class="font-bold">Gagal memuat data!</p>
-                <p class="text-sm mt-2">Pastikan kolom di Google Sheet bernama: <b>Nama Produk</b>, <b>Harga</b>, dan <b>Link Komisi Ekstra</b>.</p>
+            <div class="bg-red-50 text-red-600 p-6 rounded-xl inline-block border border-red-200 max-w-lg">
+                <p class="font-bold text-lg mb-2">Gagal Memuat Data!</p>
+                <p class="text-sm">Pastikan Anda menggunakan <b>Link Publikasi CSV</b>, bukan link edit.</p>
+                <p class="text-xs mt-4 text-red-400">File -> Bagikan -> Publikasikan ke Web -> Pilih CSV -> Salin Link</p>
             </div>
         </div>
 
-        <div id="product-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 hidden">
-        </div>
+        <div id="product-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 hidden">
+            </div>
     </main>
 
-    <footer class="bg-white border-t border-slate-200 py-10 text-center">
-        <p class="text-slate-400 text-sm">© 2026 hub.kangruli.web.id | Partner Resmi Affiliate</p>
-    </footer>
-
     <script>
-    // GANTI URL INI DENGAN URL CSV ANDA YANG BENAR
-   const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS7mfrdLCUYC1dsGJ5F_ixbZiZ7eA28nCn-MMvPGkAfcmGi20pW2ltTP4O2lkDAR0KoJjxczeT3UEAz/pub?output=csv";
+        // --- BAGIAN PENTING: GANTI LINK DI BAWAH INI ---
+        // Pastikan akhiran link adalah: /pub?output=csv
+        const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS7mfrdLCUYC1dsGJ5F_ixbZiZ7eA28nCn-MMvPGkAfcmGi20pW2ltTP4O2lkDAR0KoJjxczeT3UEAz/pub?output=csv"; 
+        
+        const container = document.getElementById('product-container');
+        const loading = document.getElementById('loading');
+        const errorMsg = document.getElementById('error-msg');
 
-    const container = document.getElementById('product-container');
-    const loading = document.getElementById('loading');
-    const errorMsg = document.getElementById('error-msg');
+        // Fungsi membersihkan format harga Shopee (misal: "129,0RB" -> "129.000")
+        const cleanPrice = (priceStr) => {
+            if (!priceStr) return "0";
+            // Hapus tanda kutip jika ada
+            let clean = priceStr.replace(/['"]+/g, '');
+            
+            // Cek jika ada "RB" (Ribu)
+            if (clean.toUpperCase().includes("RB")) {
+                clean = clean.replace(/RB/gi, '').replace(',', '.');
+                let number = parseFloat(clean) * 1000;
+                return new Intl.NumberFormat('id-ID').format(number);
+            }
+            
+            // Jika angka biasa
+            return clean;
+        };
 
-    // Fungsi Format Rupiah
-    const formatRupiah = (angka) => {
-        return new Intl.NumberFormat('id-ID').format(angka);
-    };
+        function loadProducts() {
+            Papa.parse(SHEET_URL, {
+                download: true,
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    const data = results.data;
+                    console.log("Data loaded:", data); // Cek console browser untuk debug
 
-    function loadProducts() {
-        Papa.parse(SHEET_URL, {
-            download: true,
-            header: true,
-            skipEmptyLines: true, // Tambahan: melewati baris kosong
-            complete: function(results) {
-                const data = results.data;
-                
-                // DEBUG: Lihat data pertama di Console Browser (Klik Kanan -> Inspect -> Console)
-                console.log("Data Baris Pertama:", data[0]); 
-
-                if (!data || data.length === 0) {
-                    showError();
-                    return;
-                }
-
-                let hasProduct = false;
-
-                data.forEach((row, index) => {
-                    // Ambil data
-                    const nama = row['Nama Produk'];
-                    const hargaRaw = row['Harga'];
-                    const penjualan = row['Penjualan'];
-                    // Tambahan: Kolom gambar (buat kolom 'Gambar URL' di sheet Anda)
-                    const gambarUrl = row['Gambar URL']; 
-                    
-                    // Logika Link
-                    let link = row['Link Komisi Ekstra'];
-                    if (!link || link.trim() === "") {
-                        link = row['Link Produk'];
+                    if (!data || data.length === 0) {
+                        showError(); 
+                        return;
                     }
 
-                    // Validasi Data Utama
-                    if (!nama || !link) return;
+                    // Cek apakah header benar (Minimal ada Nama Produk)
+                    const firstRow = data[0];
+                    if (!firstRow.hasOwnProperty('Nama Produk')) {
+                        console.error("Kolom 'Nama Produk' tidak ditemukan!");
+                        showError();
+                        return;
+                    }
 
-                    hasProduct = true;
-                    
-                    // Logika Gambar: Jika ada link gambar di sheet pakai itu, jika tidak pakai random
-                    const imgSrc = (gambarUrl && gambarUrl.trim() !== "") 
-                        ? gambarUrl 
-                        : `https://picsum.photos/seed/${index + 55}/400/400`;
+                    let hasProduct = false;
 
-                    // Format Harga
-                    const hargaFormatted = formatRupiah(hargaRaw);
+                    data.forEach((row, index) => {
+                        const nama = row['Nama Produk'];
+                        const hargaRaw = row['Harga'];
+                        const penjualan = row['Penjualan'];
+                        
+                        // Logika Link: Utamakan Link Komisi Ekstra
+                        let link = row['Link Komisi Ekstra'];
+                        if (!link || link.trim() === "") {
+                            link = row['Link Produk'];
+                        }
 
-                    container.innerHTML += `
-                        <div class="product-card bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm flex flex-col h-full">
-                            <div class="aspect-square bg-slate-100 relative overflow-hidden group">
-                                <img src="${imgSrc}" alt="${nama}" loading="lazy" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                                <div class="absolute top-2 right-2 bg-indigo-600/90 backdrop-blur text-white px-2 py-1 rounded-md text-[10px] font-bold shadow-sm">
-                                    ${penjualan ? penjualan + ' Terjual' : 'REKOMENDASI'}
-                                </div>
-                            </div>
-                            <div class="p-4 flex flex-col flex-grow justify-between">
-                                <div>
-                                    <h3 class="text-sm font-bold text-slate-800 mb-2 line-clamp-2 leading-snug" title="${nama}">
-                                        ${nama}
-                                    </h3>
-                                    <div class="text-indigo-600 font-extrabold text-lg mb-4">
-                                        Rp ${hargaFormatted}
+                        // Skip jika data kosong
+                        if (!nama || !link) return;
+
+                        hasProduct = true;
+                        
+                        // Format Harga
+                        const hargaFinal = cleanPrice(hargaRaw);
+
+                        // Gambar Random (Karena di CSV belum ada kolom URL Gambar)
+                        // Menggunakan ID unik agar gambar konsisten per produk
+                        const uniqueId = row['ID Produk'] || index;
+                        const imgSrc = `https://picsum.photos/seed/${uniqueId}/300/300`;
+
+                        container.innerHTML += `
+                            <div class="bg-white rounded-xl overflow-hidden border border-slate-100 shadow hover:shadow-lg transition-all duration-300 flex flex-col h-full group">
+                                <div class="relative overflow-hidden aspect-square">
+                                    <img src="${imgSrc}" alt="${nama}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3">
+                                        <p class="text-white text-xs font-medium">
+                                            ${penjualan ? penjualan + ' Terjual' : 'Terlaris'}
+                                        </p>
                                     </div>
                                 </div>
-                                <a href="${link}" target="_blank" rel="nofollow" 
-                                   class="block w-full text-center bg-slate-900 text-white py-3 rounded-xl text-xs font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200">
-                                    BELI SEKARANG
-                                </a>
+                                <div class="p-3 flex flex-col flex-grow">
+                                    <h3 class="text-xs font-bold text-slate-800 mb-1 line-clamp-2 leading-relaxed h-8" title="${nama}">
+                                        ${nama}
+                                    </h3>
+                                    <div class="mt-auto pt-2">
+                                        <div class="text-indigo-600 font-extrabold text-base mb-3">
+                                            Rp ${hargaFinal}
+                                        </div>
+                                        <a href="${link}" target="_blank" class="block w-full text-center bg-slate-900 hover:bg-indigo-600 text-white py-2.5 rounded-lg text-xs font-bold transition-colors">
+                                            BELI SEKARANG
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    `;
-                });
+                        `;
+                    });
 
-                if (hasProduct) {
-                    loading.style.display = 'none';
-                    container.classList.remove('hidden');
-                } else {
-                    console.error("Kolom tidak ditemukan. Cek Console untuk nama kolom yang terbaca.");
+                    if (hasProduct) {
+                        loading.style.display = 'none';
+                        container.classList.remove('hidden');
+                    } else {
+                        showError();
+                    }
+                },
+                error: function(err) {
+                    console.error("Error parsing CSV:", err);
                     showError();
                 }
-            },
-            error: function(err) {
-                console.error("Error CSV:", err);
-                showError();
-            }
-        });
-    }
+            });
+        }
 
-    function showError() {
-        loading.style.display = 'none';
-        errorMsg.classList.remove('hidden');
-    }
+        function showError() {
+            loading.style.display = 'none';
+            errorMsg.classList.remove('hidden');
+        }
 
-    loadProducts();
-</script>
-    
+        loadProducts();
+    </script>
 </body>
 </html>
