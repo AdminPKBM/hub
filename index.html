@@ -10,6 +10,9 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
         .product-card { transition: all 0.3s ease; }
         .product-card:hover { transform: translateY(-5px); shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
+        /* Loading animation */
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #4f46e5; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -32,8 +35,12 @@
     </header>
 
     <main class="container mx-auto px-6 pb-24">
-        <div id="product-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            </div>
+        <div id="loading" class="text-center py-10">
+            <div class="loader"></div>
+            <p class="text-slate-500 text-sm">Memuat data terbaru...</p>
+        </div>
+        <div id="product-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 hidden">
+        </div>
     </main>
 
     <footer class="bg-white border-t border-slate-200 py-10 text-center">
@@ -42,45 +49,91 @@
 
     <script>
         const MY_AFF_ID = "11368310025";
-
-        // Data yang diekstrak dari lampiran CSV Anda
-        const productData = [
-            { name: "Pembersih Wajah Pria", link: "https://shopee.co.id/product/12345/67890" },
-            { name: "Sepatu Lari Sporty", link: "https://shopee.co.id/product/22334/44556" },
-            { name: "Headset Bluetooth Bass", link: "https://shopee.co.id/product/55667/88990" },
-            { name: "Jam Tangan Digital", link: "https://shopee.co.id/product/11122/33344" },
-            { name: "Kemeja Flanel Premium", link: "https://shopee.co.id/product/99887/77665" },
-            { name: "Tas Ransel Laptop", link: "https://shopee.co.id/product/44556/11223" }
-            // Sistem akan otomatis memproses semua link dari file yang Anda kirim
-        ];
+        const SHEET_ID = "1xo-dKGA6Uxn78wUqGv-UbQLoHIWMb0SebTNC6bSEoUc"; // ID dari link yang Anda berikan
+        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
 
         const container = document.getElementById('product-container');
+        const loading = document.getElementById('loading');
 
-        productData.forEach((p, index) => {
-            // Logika Link Affiliate
-            const affiliateLink = `${p.link}?smtt=0.0.${MY_AFF_ID}`;
+        // Fungsi parse CSV sederhana (mengasumsikan pemisah koma)
+        function parseCSV(text) {
+            const rows = text.trim().split('\n');
+            // Hapus header (baris pertama) jika ada, asumsi baris 1 adalah judul kolom
+            const dataRows = rows.slice(1); 
             
-            // Placeholder Image (Agar web tidak berat, menggunakan placeholder estetik)
-            const imgSrc = `https://picsum.photos/seed/${index + 10}/400/400`;
+            return dataRows.map(row => {
+                // Regex ini menangani koma di dalam tanda kutip jika ada (misal nama produk mengandung koma)
+                const cols = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
+                // Fallback split biasa jika regex gagal atau format sederhana
+                const simpleCols = row.split(',');
+                
+                // Asumsi: Kolom 1 (index 0) = Nama Produk, Kolom 2 (index 1) = Link Produk
+                // Kita bersihkan tanda kutip jika ada
+                const name = (cols[0] || simpleCols[0] || "").replace(/^"|"$/g, '').trim();
+                const link = (cols[1] || simpleCols[1] || "").replace(/^"|"$/g, '').trim();
+                
+                return { name, link };
+            }).filter(item => item.name && item.link); // Hanya ambil yang ada nama & linknya
+        }
 
-            container.innerHTML += `
-                <div class="product-card bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
-                    <div class="aspect-square bg-slate-100 relative">
-                        <img src="${imgSrc}" alt="${p.name}" class="w-full h-full object-cover">
-                        <div class="absolute top-2 right-2 bg-white/90 px-2 py-1 rounded-md text-[10px] font-bold text-indigo-600 shadow-sm">
-                            SELECTED
+        async function loadProducts() {
+            try {
+                const response = await fetch(SHEET_URL);
+                if (!response.ok) throw new Error("Gagal mengambil data");
+                
+                const csvText = await response.text();
+                const productData = parseCSV(csvText);
+
+                if (productData.length === 0) {
+                    loading.innerHTML = "<p class='text-red-500'>Tidak ada data produk ditemukan.</p>";
+                    return;
+                }
+
+                // Render produk
+                productData.forEach((p, index) => {
+                    // Logika Link Affiliate
+                    // Cek apakah link sudah mengandung ? atau belum
+                    const separator = p.link.includes('?') ? '&' : '?';
+                    const affiliateLink = `${p.link}${separator}smtt=0.0.${MY_AFF_ID}`;
+                    
+                    // Placeholder Image
+                    const imgSrc = `https://picsum.photos/seed/${index + 55}/400/400`;
+
+                    container.innerHTML += `
+                        <div class="product-card bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
+                            <div class="aspect-square bg-slate-100 relative">
+                                <img src="${imgSrc}" alt="${p.name}" class="w-full h-full object-cover">
+                                <div class="absolute top-2 right-2 bg-white/90 px-2 py-1 rounded-md text-[10px] font-bold text-indigo-600 shadow-sm">
+                                    HOT
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="text-sm font-bold text-slate-800 mb-4 line-clamp-2 h-10">${p.name}</h3>
+                                <a href="${affiliateLink}" target="_blank" rel="nofollow" 
+                                   class="block w-full text-center bg-indigo-600 text-white py-2.5 rounded-xl text-xs font-bold hover:bg-slate-900 transition-colors">
+                                    Lihat Detail
+                                </a>
+                            </div>
                         </div>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="text-sm font-bold text-slate-800 mb-4 line-clamp-2 h-10">${p.name}</h3>
-                        <a href="${affiliateLink}" target="_blank" rel="nofollow" 
-                           class="block w-full text-center bg-indigo-600 text-white py-2.5 rounded-xl text-xs font-bold hover:bg-slate-900 transition-colors">
-                            Lihat Detail
-                        </a>
-                    </div>
-                </div>
-            `;
-        });
+                    `;
+                });
+
+                // Sembunyikan loading, tampilkan container
+                loading.style.display = 'none';
+                container.classList.remove('hidden');
+
+            } catch (error) {
+                console.error(error);
+                loading.innerHTML = `
+                    <p class='text-red-500 text-sm'>Gagal memuat data.</p>
+                    <p class='text-xs text-slate-400 mt-2'>Pastikan Google Sheet sudah di-"Publish to Web" (File > Share > Publish to Web).</p>
+                `;
+            }
+        }
+
+        // Jalankan fungsi saat halaman dimuat
+        loadProducts();
+
     </script>
 </body>
 </html>
